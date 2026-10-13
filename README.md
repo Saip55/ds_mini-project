@@ -1,15 +1,16 @@
-# 🌐 CLI Browser History Simulator
+# 🌐 CLI Browser History Simulator (C++17)
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg?style=for-the-badge&logo=python&logoColor=white)
-![Data Structure](https://img.shields.io/badge/Data%20Structure-Stack%20(LIFO)-brightgreen.svg?style=for-the-badge)
+![C++](https://img.shields.io/badge/C%2B%2B-17-00599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+![Compiler](https://img.shields.io/badge/Clang%20%2F%20GCC-Passed-blue.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)
+![Data Structure](https://img.shields.io/badge/Data%20Structure-Pointer%20Linked%20Stack-brightgreen.svg?style=for-the-badge)
 ![Architecture](https://img.shields.io/badge/Architecture-3--Tier%20Layered-orange.svg?style=for-the-badge)
-![Tests](https://img.shields.io/badge/Tests-17%20Passed-success.svg?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-purple.svg?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-19%20Passed-success.svg?style=for-the-badge)
+![Build](https://img.shields.io/badge/Build-Makefile-purple.svg?style=for-the-badge)
 
 <p align="center">
-  A high-fidelity terminal browser history engine built from first principles using an encapsulated Stack Abstract Data Type (ADT) and 3-Tier Layered Modular Architecture.
+  A high-performance browser navigation simulator written in <b>Modern C++17</b>. Implemented from first principles using an encapsulated <b>Pointer-based Linked List Stack ADT</b>, dynamic memory management (RAII / Rule of Five), and a decoupled <b>3-Tier Layered Modular Architecture</b>.
 </p>
 
 </div>
@@ -20,14 +21,15 @@
 
 - **Project Title:** CLI Browser History Simulator
 - **Course / Scope:** Data Structures Mini Project
+- **Language / Standard:** C++17 (Native Compiled)
 - **Architecture Pattern:** 3-Tier Layered Modular Architecture
-- **Core Data Structure:** Stack Abstract Data Type (ADT)
+- **Core Data Structure:** Pointer-based Linked List Stack Abstract Data Type (ADT)
 
 ---
 
 ## 🎯 Executive Summary & Objectives
 
-The **CLI Browser History Simulator** models real-world web browser navigation (Google Chrome, Firefox, Safari) using the **Stack Abstract Data Type (ADT)**.
+The **CLI Browser History Simulator** models real-world web browser navigation (Google Chromium, Apple WebKit, Mozilla Gecko) using the **Pointer-based Linked List Stack Abstract Data Type (ADT)**.
 
 ```mermaid
 flowchart TD
@@ -60,10 +62,10 @@ flowchart TD
     %% ==========================================
     subgraph T3 ["💾 Tier 3: Data Management Layer (Data Structures)"]
         direction LR
-        BSTK[("⏮️ <b>Back Stack</b><br/><code>Stack[Page]</code>")]
-        FSTK[("⏭️ <b>Forward Stack</b><br/><code>Stack[Page]</code>")]
+        BSTK[("⏮️ <b>Back Stack</b><br/><code>Stack&lt;Page&gt;</code>")]
+        FSTK[("⏭️ <b>Forward Stack</b><br/><code>Stack&lt;Page&gt;</code>")]
         MOD["📄 <b>Page Model</b><br/><i>URL, Timestamp</i>"]
-        EXC["🛡️ <b>Custom Exceptions</b><br/><i>EmptyStackError</i>"]
+        EXC["🛡️ <b>Custom Exceptions</b><br/><i>EmptyStackException</i>"]
         BSTK ~~~ FSTK
         FSTK ~~~ MOD
         MOD ~~~ EXC
@@ -91,9 +93,10 @@ flowchart TD
 ```
 
 ### Key Technical Goals:
-- **LIFO Paradigm**: Coordinate two stacks (`back_stack` and `forward_stack`) to provide $\mathcal{O}(1)$ navigation.
-- **Layered Modular Architecture**: Complete decoupling of presentation, domain rules, and data structures.
-- **Robustness & Clean Code**: Zero external dependencies, typed exceptions, 100% automated test coverage.
+- **LIFO Paradigm**: Coordinate two pointer-linked stacks (`backStack` and `forwardStack`) to guarantee strict $\mathcal{O}(1)$ navigation.
+- **Dynamic Memory Management & RAII**: Manual node allocation (`new`/`delete`) with full implementation of the **Rule of Five** (Destructor, Copy Constructor, Copy Assignment, Move Constructor, Move Assignment).
+- **Layered Modular Architecture**: Strict separation of concerns between UI presentation, domain logic, and heap data management.
+- **Robustness & Clean Code**: Zero external third-party dependencies, custom typed C++ exception handling, 100% automated test coverage.
 
 ---
 
@@ -102,7 +105,7 @@ flowchart TD
 ```
 +----------------------------------------------------------------------+
 |                       PRESENTATION LAYER (CLI)                       |
-|   - Interactive REPL Loop (`BrowserCLI.run()`)                       |
+|   - Interactive REPL Loop (`BrowserCLI::run()`)                      |
 |   - Command Parser & Input Sanitization                              |
 |   - ASCII Dual-Stack Visualizer (`BrowserVisualizer`)                |
 +----------------------------------------------------------------------+
@@ -111,54 +114,66 @@ flowchart TD
 +----------------------------------------------------------------------+
 |                       BUSINESS LOGIC LAYER                           |
 |   - Navigation Rules (`visit`, `back`, `forward`)                    |
-|   - Invariant Enforcement (Forward stack invalidation on new visit)  |
+|   - Invariant Enforcement (Purge forward stack on new visit)         |
 |   - Navigation State Snapshots (`BrowserStateSummary`)               |
-|   - Chronological Audit Trail (`_audit_log`)                         |
+|   - Chronological Audit Trail (`auditLog`)                           |
 +----------------------------------------------------------------------+
                                    │  (Invokes stack operations)
                                    ▼
 +----------------------------------------------------------------------+
 |                       DATA MANAGEMENT LAYER                          |
-|   - Custom `Stack[T]` Abstract Data Type (LIFO)                      |
+|   - Generic Pointer-based `Stack<T>` ADT (LIFO)                      |
 |   - Domain Models (`Page`, `BrowserStateSummary`)                    |
-|   - Custom Exceptions (`EmptyStackError`, `NavigationError`)         |
+|   - Custom Exceptions (`EmptyStackException`, `NavigationException`) |
 +----------------------------------------------------------------------+
 ```
 
-### 1. Presentation Layer (`presentation/`)
-- `cli.py`: Interactive Read-Eval-Print Loop (REPL), parses commands, dispatches actions, and provides user feedback.
-- `visualizer.py`: Renders real-time ASCII dual-stack diagrams and ANSI color formatting with fallback.
-
-### 2. Business Logic Layer (`core/`)
-- `browser.py`: Implements navigation mechanics, invariant enforcement, and history tracking.
-- `models.py`: Immutable `Page` model and decoupled `BrowserStateSummary` data transfer object.
-
-### 3. Data Management Layer (`data_structures/`)
-- `stack.py`: Encapsulated, generic `Stack[T]` ADT adhering to strict LIFO semantics.
-- `exceptions.py`: Typed hierarchy (`StackError`, `EmptyStackError`, `StackOverflowError`, `NavigationError`).
-
 ---
 
-## 📦 Data Structure Specification (Stack ADT)
+## 📦 Data Structure Specification (Pointer Linked Stack ADT)
 
-All stack operations adhere to strict theoretical time complexities:
+The stack is implemented as a singly-linked list of dynamic nodes managed by a `topNode` pointer:
 
-| Method | Signature | Description | Time Complexity |
-| :--- | :--- | :--- | :---: |
-| `push` | `push(item: T) -> None` | Inserts an item onto the top of the stack | $\mathcal{O}(1)$ |
-| `pop` | `pop() -> T` | Removes and returns the top element | $\mathcal{O}(1)$ |
-| `peek` | `peek() -> T` | Returns top element without removing it | $\mathcal{O}(1)$ |
-| `is_empty` | `is_empty() -> bool` | Checks if stack contains zero items | $\mathcal{O}(1)$ |
-| `size` | `size() -> int` | Returns current element count | $\mathcal{O}(1)$ |
-| `clear` | `clear() -> None` | Removes all elements from stack | $\mathcal{O}(1)$ |
+```cpp
+template <typename T>
+class Stack {
+private:
+    struct Node {
+        T data;
+        Node* next;
+        Node(const T& val, Node* nxt = nullptr) : data(val), next(nxt) {}
+        Node(T&& val, Node* nxt = nullptr) : data(std::move(val)), next(nxt) {}
+    };
+    Node* topNode;
+    size_t count;
+    size_t capacity; // 0 = unbounded
+    // ...
+};
+```
+
+### Complexity Guarantees:
+
+| Method | Signature | Description | Time Complexity | Space Complexity |
+| :--- | :--- | :--- | :---: | :---: |
+| `push` | `void push(const T& val)` | Prepends dynamic Node to top of list | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ |
+| `pop` | `T pop()` | Unlinks and `delete`s top Node, returns value | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ |
+| `peek` | `const T& peek() const` | Returns const reference to top element | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ |
+| `isEmpty` | `bool isEmpty() const noexcept` | Checks if `topNode == nullptr` | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ |
+| `size` | `size_t size() const noexcept` | Returns active node count | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ |
+| `clear` | `void clear() noexcept` | Traverses and deallocates all linked nodes | $\mathcal{O}(N)$ | $\mathcal{O}(1)$ |
+
+### Rule of Five Memory Safety:
+- **Destructor (`~Stack`)**: Automatically deallocates every linked node preventing memory leaks.
+- **Copy Constructor / Assignment**: Performs a deep copy of the linked list, allocating independent node chains.
+- **Move Constructor / Assignment**: Transfers pointer ownership in $\mathcal{O}(1)$ time without copying.
 
 ---
 
 ## 🔄 State Transition Matrix
 
-The table below documents how navigation commands mutate the system's state variables:
+The table below documents how commands mutate the system's state variables:
 
-| # | Initial State `(back_stack, current_page, forward_stack)` | Command | Resulting `back_stack` | Resulting `current_page` | Resulting `forward_stack` | Explanation |
+| # | Initial State `(backStack, currentPage, forwardStack)` | Command | Resulting `backStack` | Resulting `currentPage` | Resulting `forwardStack` | Explanation |
 | :-: | :--- | :--- | :---: | :---: | :---: | :--- |
 | **1** | `([], None, [])` | `VISIT A` | `[]` | `"A"` | `[]` | First page opened; nothing pushed to back stack. |
 | **2** | `(["A"], "B", [])` | `VISIT C` | `["A", "B"]` | `"C"` | `[]` | Current page `"B"` pushed to back stack; forward stack cleared. |
@@ -168,74 +183,75 @@ The table below documents how navigation commands mutate the system's state vari
 
 ---
 
-## ⚡ Complexity Analysis
+## 📁 Repository Structure
 
-- **Time Complexity**:
-  - `visit(url)`: $\mathcal{O}(1)$ — Single push to back stack, constant-time reset of forward stack.
-  - `back()`: $\mathcal{O}(1)$ — Single push to forward stack, single pop from back stack.
-  - `forward()`: $\mathcal{O}(1)$ — Single push to back stack, single pop from forward stack.
-  - `peek_back()` / `peek_forward()`: $\mathcal{O}(1)$ — Constant-time top inspection.
-- **Space Complexity**:
-  - Overall memory consumption is $\mathcal{O}(N)$ where $N$ is the number of visited pages retained in stacks.
+```text
+ds_mini-project/
+├── include/
+│   ├── data_structures/
+│   │   ├── Stack.hpp             # Generic Pointer-based Linked Stack ADT
+│   │   └── Exceptions.hpp        # Typed Exception Hierarchy
+│   ├── core/
+│   │   ├── Page.hpp              # Page Domain Model with std::chrono
+│   │   ├── BrowserStateSummary.hpp # Decoupled State Snapshot DTO
+│   │   └── BrowserHistory.hpp    # Core Navigation Business Logic Engine
+│   └── presentation/
+│       ├── TerminalStyler.hpp    # ANSI Terminal Colors with TTY detection
+│       ├── BrowserVisualizer.hpp # Real-time ASCII Stack Inspector
+│       └── BrowserCLI.hpp        # Interactive REPL Controller
+├── src/
+│   ├── core/
+│   │   └── BrowserHistory.cpp
+│   ├── presentation/
+│   │   ├── BrowserVisualizer.cpp
+│   │   └── BrowserCLI.cpp
+│   └── main.cpp                  # Application Entry Point
+├── tests/
+│   ├── test_stack.hpp            # Stack ADT unit test assertions
+│   ├── test_browser.hpp          # Browser logic & matrix test assertions
+│   └── test_runner.cpp           # Test suite driver executable
+├── Makefile                      # Automated Build & Test orchestration
+├── IMPLEMENTATION_PLAN.md        # Comprehensive Implementation Specification
+├── README.md                     # Project Documentation
+└── .gitignore                    # Git Ignore rules for binaries/objects
+```
 
 ---
 
-## 🚀 Quick Start & Interactive Demo
+## 🚀 Building & Running
 
 ### Prerequisites
-- Python 3.8 or higher (No third-party packages required — uses standard library).
+- Modern C++ Compiler: `clang++` (macOS default) or `g++` with **C++17** support.
+- `make` utility.
 
-### Launching the Simulator
+### One-Command Build & Run:
 ```bash
-python3 main.py
+# Build the application
+make
+
+# Launch the interactive simulator
+make run
 ```
 
-### Live Interactive Session Preview
+### Running the Automated Test Suite:
+```bash
+make test
+```
+**Sample Test Output:**
 ```text
 ================================================================
-     🌐 CLI BROWSER HISTORY SIMULATOR (DS MINI PROJECT)
-   Layered Architecture | Dual-Stack LIFO Engine | Audit Trail
+       🧪 RUNNING AUTOMATED UNIT TEST SUITE (C++17)
 ================================================================
-Type HELP to view available commands, or VISIT <url> to begin.
+Running Stack ADT tests... ✔ PASSED (10 test assertions)
+Running Browser Navigation tests... ✔ PASSED (9 test assertions)
+----------------------------------------------------------------
+All 19 Unit Tests Passed Successfully! (0.76 ms)
+================================================================
+```
 
-[Browser] » VISIT google.com
-✔ Navigated to: https://google.com
-
-[Browser] » VISIT github.com
-✔ Navigated to: https://github.com
-
-[Browser] » VISIT stackoverflow.com
-✔ Navigated to: https://stackoverflow.com
-
-[Browser] » BACK
-◀ Back to: https://github.com
-
-[Browser] » STATUS
-
-════════════════════════════════════════════════════════════
-                 📊 BROWSER STACK INSPECTOR
-════════════════════════════════════════════════════════════
-  [ FORWARD STACK ] (LIFO - Top to Bottom)
-    ▲ [Top]    https://stackoverflow.com (11:02:15)
-  ────────────────────────────────────────────────────────────
-  >>> 🌐 ACTIVE PAGE: https://github.com <<<
-      Visited at: 11:02:10
-  ────────────────────────────────────────────────────────────
-  [ BACK STACK ]    (LIFO - Top to Bottom)
-    ▼ [Top]    https://google.com (11:02:05)
-════════════════════════════════════════════════════════════
-  Back: 1 item(s) | Forward: 1 item(s) | Total Visits: 3
-════════════════════════════════════════════════════════════
-
-[Browser] » LOG
-
-📜 Chronological Browsing History:
-Index  Time      URL
---------------------------------------------------
-[01]   11:02:05  https://google.com
-[02]   11:02:10  https://github.com
-[03]   11:02:15  https://stackoverflow.com
---------------------------------------------------
+### Cleaning Build Artifacts:
+```bash
+make clean
 ```
 
 ---
@@ -253,50 +269,6 @@ Index  Time      URL
 | `CLEAR` | `CLEAR` | Resets back and forward stacks |
 | `HELP` | `HELP` | Displays available commands |
 | `QUIT` | `QUIT` / `EXIT` | Safely terminates the simulator |
-
----
-
-## 🧪 Automated Testing
-
-Run the full automated test suite containing 17 unit tests:
-
-```bash
-python3 -m unittest discover -s tests -v
-```
-
-### Test Coverage Highlights:
-- ✅ **LIFO Ordering**: Verifies elements emerge in reverse order of insertion.
-- ✅ **Boundary Safety**: Prevents `IndexError` on empty pops/peeks, verifying typed `EmptyStackError`.
-- ✅ **Invariant Compliance**: Asserts forward stack is cleared whenever a new URL is visited.
-- ✅ **State Matrix**: 100% passes all transitions in the State Transition Matrix.
-
----
-
-## 📁 Repository Structure
-
-```text
-ds_mini-project/
-├── data_structures/
-│   ├── __init__.py
-│   ├── stack.py             # Encapsulated Generic Stack ADT
-│   └── exceptions.py        # Custom Exception Hierarchy
-├── core/
-│   ├── __init__.py
-│   ├── models.py            # Page Model & State Summary DTO
-│   └── browser.py           # BrowserHistory Business Logic
-├── presentation/
-│   ├── __init__.py
-│   ├── visualizer.py        # ASCII Visualizer & ANSI Styler
-│   └── cli.py               # Interactive REPL Controller
-├── tests/
-│   ├── __init__.py
-│   ├── test_stack.py        # Stack ADT Unit Tests
-│   └── test_browser.py      # Browser Navigation Unit Tests
-├── main.py                  # Executable Application Entry Point
-├── IMPLEMENTATION_PLAN.md   # Detailed Implementation Specifications
-├── README.md                # Project Documentation & Architecture
-└── .gitignore               # Python and OS Ignore Rules
-```
 
 ---
 

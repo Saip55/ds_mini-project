@@ -30,31 +30,64 @@
 The **CLI Browser History Simulator** models real-world web browser navigation (Google Chrome, Firefox, Safari) using the **Stack Abstract Data Type (ADT)**.
 
 ```mermaid
-graph TD
-    subgraph "Tier 1: Presentation Layer"
-        CLI["BrowserCLI (REPL Loop)"]
-        VIS["BrowserVisualizer (ASCII Diagrams)"]
-        STY["TerminalStyler (ANSI Colors)"]
+flowchart TD
+    %% ==========================================
+    %% TIER 1: PRESENTATION LAYER
+    %% ==========================================
+    subgraph T1 ["🖥️ Tier 1: Presentation Layer (CLI)"]
+        direction LR
+        CLI["💻 <b>BrowserCLI</b><br/><i>Interactive REPL Loop</i>"]
+        VIS["📊 <b>BrowserVisualizer</b><br/><i>ASCII Stack Diagrams</i>"]
+        STY["🎨 <b>TerminalStyler</b><br/><i>ANSI Color Engine</i>"]
+        CLI --> VIS
+        VIS --> STY
     end
 
-    subgraph "Tier 2: Business Logic Layer"
-        BH["BrowserHistory Engine"]
-        DTO["BrowserStateSummary (Snapshot DTO)"]
-        LOG["Chronological Audit Log"]
+    %% ==========================================
+    %% TIER 2: BUSINESS LOGIC LAYER
+    %% ==========================================
+    subgraph T2 ["⚙️ Tier 2: Business Logic Layer (Core Engine)"]
+        direction LR
+        BH["🧠 <b>BrowserHistory Engine</b><br/><i>Navigation Rules & Invariants</i>"]
+        DTO["📦 <b>BrowserStateSummary</b><br/><i>Decoupled State Snapshot DTO</i>"]
+        LOG["📜 <b>Chronological Audit Log</b><br/><i>Full Visit Timeline</i>"]
+        BH --> DTO
+        BH --> LOG
     end
 
-    subgraph "Tier 3: Data Management Layer"
-        STK["Stack[Page] (Generic LIFO ADT)"]
-        EXC["Custom Exceptions (EmptyStackError, NavigationError)"]
-        MOD["Page Model (URL, Timestamp)"]
+    %% ==========================================
+    %% TIER 3: DATA MANAGEMENT LAYER
+    %% ==========================================
+    subgraph T3 ["💾 Tier 3: Data Management Layer (Data Structures)"]
+        direction LR
+        BSTK[("⏮️ <b>Back Stack</b><br/><code>Stack[Page]</code>")]
+        FSTK[("⏭️ <b>Forward Stack</b><br/><code>Stack[Page]</code>")]
+        MOD["📄 <b>Page Model</b><br/><i>URL, Timestamp</i>"]
+        EXC["🛡️ <b>Custom Exceptions</b><br/><i>EmptyStackError</i>"]
+        BSTK ~~~ FSTK
+        FSTK ~~~ MOD
+        MOD ~~~ EXC
     end
 
-    CLI -->|Invokes Commands| BH
-    VIS -->|Renders DTO| DTO
-    BH -->|Generates Snapshot| DTO
-    BH -->|Manipulates LIFO| STK
-    BH -->|Appends To| LOG
-    STK -.->|Raises| EXC
+    %% Direct Subgraph Flow (Forces Strict Vertical Stacking)
+    T1 ==>|"Dispatches Navigation Commands (VISIT, BACK, FORWARD)"| T2
+    T2 ==>|"LIFO Stack Operations (Push, Pop, Clear)"| T3
+
+    %% Premium Modern Styling
+    classDef presTier fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef bizTier fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef stackTier fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#ecfdf5;
+    classDef auxTier fill:#1e293b,stroke:#64748b,stroke-width:1.5px,color:#cbd5e1;
+
+    class CLI,VIS presTier;
+    class STY auxTier;
+    class BH,DTO,LOG bizTier;
+    class BSTK,FSTK stackTier;
+    class MOD,EXC auxTier;
+
+    style T1 fill:#080d1a,stroke:#0284c7,stroke-width:2px,stroke-dasharray: 4 4,color:#38bdf8;
+    style T2 fill:#0f091f,stroke:#7c3aed,stroke-width:2px,stroke-dasharray: 4 4,color:#c084fc;
+    style T3 fill:#04140e,stroke:#059669,stroke-width:2px,stroke-dasharray: 4 4,color:#34d399;
 ```
 
 ### Key Technical Goals:
